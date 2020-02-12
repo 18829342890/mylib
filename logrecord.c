@@ -6,18 +6,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <errno.h>
 
 #include "logrecord.h"
 
-#define LR_DEBUG_FILE_	"lrdebug.log"
+#define LR_DEBUG_FILE_	        "default.log"
 #define LR_MAX_STRING_LEN 		10240
 
+
 /*Level类别*/
-#define LR_NO_LOG_LEVEL			0
-#define LR_DEBUG_LEVEL			1
-#define LR_INFO_LEVEL			2
-#define LR_WARNING_LEVEL		3
-#define LR_ERROR_LEVEL			4
+#define LR_NO_LOG_LEVEL         0
+#define LR_DEBUG_LEVEL          1
+#define LR_INFO_LEVEL           2
+#define LR_WARNING_LEVEL        3
+#define LR_ERROR_LEVEL          4
 
 int  LogLevel[5] = {LR_NO_LOG_LEVEL, LR_DEBUG_LEVEL, LR_INFO_LEVEL, LR_WARNING_LEVEL, LR_ERROR_LEVEL};
 
@@ -46,19 +48,20 @@ static int LR_Error_OpenFile(int* pf)
 #ifdef WIN32
 	sprintf(fileName, "c:\\lrlog\\%s",LR_DEBUG_FILE_);
 #else
-	sprintf(fileName, "%s/log/%s", getenv("HOME"), LR_DEBUG_FILE_);
+	sprintf(fileName, "./%s", LR_DEBUG_FILE_);
 #endif
     
-    *pf = open(fileName, O_WRONLY|O_CREAT|O_APPEND, 0666);
+    *pf = open(fileName, O_WRONLY|O_APPEND|O_CREAT, 0666);
     if(*pf < 0)
     {
+        printf("stat failed||ret:%d||errmsg:%s\n",errno, strerror(errno));
         return -1;
     }
 	
 	return 0;
 }
 
-static void LR_Error_Core(const char *file, int line, int level, int status, const char *fmt, va_list args)
+static void LR_Error_Core(const char *file, int line, int level, const char *fmt, va_list args)
 {
     char str[LR_MAX_STRING_LEN];
     int	 strLen = 0;
@@ -72,36 +75,29 @@ static void LR_Error_Core(const char *file, int line, int level, int status, con
     
     /*加入LOG时间*/
     tmpStrLen = LR_Error_GetCurTime(tmpStr);
-    tmpStrLen = sprintf(str, "[%s] ", tmpStr);
+    tmpStrLen = sprintf(str, "[%s]", tmpStr);
     strLen = tmpStrLen;
 
-    /*加入LOG等级*/
-    tmpStrLen = sprintf(str+strLen, "[%s] ", LRLevelName[level]);
+    /*加入LOG发生文件*/
+    tmpStrLen = sprintf(str+strLen, "[%s", file);
     strLen += tmpStrLen;
-    
-    /*加入LOG状态*/
-    if (status != 0) 
-    {
-        tmpStrLen = sprintf(str+strLen, "[ERRNO is %d] ", status);
-    }
-    else
-    {
-    	tmpStrLen = sprintf(str+strLen, "[SUCCESS] ");
-    }
+
+    /*加入LOG发生行数*/
+    tmpStrLen = sprintf(str+strLen, " :%d]", line);
+    strLen += tmpStrLen;
+
+    /*加入LOG等级*/
+    tmpStrLen = sprintf(str+strLen, "[%s]: ", LRLevelName[level]);
     strLen += tmpStrLen;
 
     /*加入LOG信息*/
     tmpStrLen = vsprintf(str+strLen, fmt, args);
     strLen += tmpStrLen;
 
-    /*加入LOG发生文件*/
-    tmpStrLen = sprintf(str+strLen, " [%s]", file);
+    tmpStrLen = sprintf(str+strLen, "\n");
     strLen += tmpStrLen;
 
-    /*加入LOG发生行数*/
-    tmpStrLen = sprintf(str+strLen, " [%d]\n", line);
-    strLen += tmpStrLen;
-    
+
     /*打开LOG文件*/
     if(LR_Error_OpenFile(&pf))
 	{
@@ -118,7 +114,7 @@ static void LR_Error_Core(const char *file, int line, int level, int status, con
     return ;
 }
 
-void LR_LOG(const char *file, int line, int level, int status, const char *fmt, ...)
+void LR_LOG(const char *file, int line, int level, const char *fmt, ...)
 {
     va_list args;
 	
@@ -131,7 +127,7 @@ void LR_LOG(const char *file, int line, int level, int status, const char *fmt, 
 	
 	/*调用核心的写LOG函数*/
     va_start(args, fmt);
-    LR_Error_Core(file, line, level, status, fmt, args);
+    LR_Error_Core(file, line, level, fmt, args);
     va_end(args);
     
     return ;
