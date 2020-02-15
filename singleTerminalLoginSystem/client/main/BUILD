@@ -1,19 +1,13 @@
-cc_import(
-  name = "mylib",
-  hdrs = ["logrecord.h"],
-  static_library = "libmyLogLib.a",
-)
-
 
 cc_library(
     name = "commandLine",
     srcs = ["commandLine.cpp"],
     hdrs = ["commandLine.h"],
     copts = [
-		"-IprocessCommandLine/"
+		"-Iclient/processCommandLine/"
 	],
 	deps = [
-		"//processCommandLine:processCommandLineLib",
+		"//client/processCommandLine:processCommandLineLib",
 	]
 )
 
@@ -21,11 +15,13 @@ cc_binary (
 	name = "client",
 	srcs = ["main.cpp"],
 	copts = [
-		"-IprocessCommandLine/"
+		"-Iclient/processCommandLine/",
+		"-Imylib/mylib_log/",
 	],
 	deps = [
 		":commandLine",
-		"//processCommandLine:processCommandLineLib",
+		"//client/processCommandLine:processCommandLineLib",
+		"//mylib/mylib_log:myLogLib"
 	],
 
 )

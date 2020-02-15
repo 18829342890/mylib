@@ -1,8 +1,8 @@
 cc_library(
 	name = "processCommandLineLib",
 	hdrs = [
-		"IProcessCommandLine.h",
-		"help.h",
+		"ProcessCommandLineBase.h",
+		"Help.h",
 	],
-	visibility = ["//main:__pkg__"],
+	visibility = ["//client/main:__pkg__"],
 )

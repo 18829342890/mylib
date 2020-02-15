@@ -1,14 +1,15 @@
 #ifndef __HELP_H__
 #define __HELP_H__
 
-#include "IProcessCommandLine.h"
+#include "ProcessCommandLineBase.h"
 
 
-class Help : IProcessCommandLine
+class Help : public ProcessCommandLineBase
 {
 
 public:
-	int processCommandLine(char* params[])
+
+	virtual int processCommandLine(const char* params[])
 	{
 		processHelp();
 		return 0;

@@ -1,7 +1,12 @@
 #include "commandLine.h"
-#include "help.h"
+#include "Help.h"
 #include <string.h>
 
+
+#define GET_CMD_IMPL_CLASS (cmdImplClass)  \
+do{                                        \
+	IProcessCommandLine implClass; \
+}while(0)
 
 
 
@@ -18,7 +23,7 @@ bool isLegalCmd(const char* cmd)
 	return false;
 }
 
-const char* getCmdImplClass(const char* cmd)
+ProcessCommandLineBase* getCmdImplClass(const char* cmd)
 {
 	for(int i = 0; s_my_cmds[i].cmd; ++i)
 	{
@@ -44,18 +49,15 @@ const char* getCmdImplDesc(const char* cmd)
 	return NULL;
 }
 
-int processCmd(const char* cmd)
+int processCmd(const char* cmd, const char* params[])
 {
-	const char* cmdImplClass = getCmdImplClass(cmd);
+	ProcessCommandLineBase* cmdImplClass = getCmdImplClass(cmd);
 	if(cmdImplClass == NULL)
 	{
-		char* params[] = {NULL};
-		Help* help = new Help();
-		help->processCommandLine(params);
+		Help help;
+		help.processCommandLine(params);
 		return -1;
 	}
 
-	
-
-
+	return cmdImplClass->processCommandLine(params);
 }

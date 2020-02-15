@@ -3,14 +3,17 @@
 
 #include <stdio.h>
 
-class IProcessCommandLine
+class ProcessCommandLineBase
 {
 
 public:
+	ProcessCommandLineBase(){};
+	~ProcessCommandLineBase(){};
+
 	/*
 	 * 处理命令的公共接口
 	 */
-	virtual int processCommandLine(char* params[]) = 0;
+	virtual int processCommandLine(const char* params[]){}
 };
 
 
