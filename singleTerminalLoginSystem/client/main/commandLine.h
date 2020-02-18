@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include "ProcessCommandLineBase.h"
 #include "Help.h"
+#include "Login.h"
+#include "Exiter.h"
+#include "Regist.h"
+#include "Logout.h"
 
 typedef struct 
 {
@@ -17,6 +21,10 @@ const int MAX_CMD_LEN = 128;
 
 
 static Help* help = new Help();
+static Login* login = new Login();
+static LogoutCmd* logoutCmd = new LogoutCmd();
+static Exiter* exiter = new Exiter();
+static RegistCmd* registCmd = new RegistCmd();
 static my_cmd_t s_my_cmds[] = {
 	{
 		"help",
@@ -27,6 +35,26 @@ static my_cmd_t s_my_cmds[] = {
 		"?",
 		help,
 		"help user use cmd."
+	},
+	{
+		"login",
+		login,
+		"login server."
+	},
+	{
+		"logout",
+		logoutCmd,
+		"logout user."
+	},
+	{
+		"exit",
+		exiter,
+		"logout then exit client."
+	},
+	{
+		"regist",
+		registCmd,
+		"user regist."
 	},
 	{
 		NULL,
@@ -46,7 +74,7 @@ ProcessCommandLineBase* getCmdImplClass(const char* cmd);
 const char* getCmdImplDesc(const char* cmd);
 
 //执行命令
-int processCmd(const char* cmd, const char* params[]);
+int processCmd(int clientSocket, const char* cmd, const char* params[]);
 
 
 

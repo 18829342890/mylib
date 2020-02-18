@@ -1,5 +1,4 @@
 #include "commandLine.h"
-#include "Help.h"
 #include <string.h>
 
 
@@ -49,15 +48,15 @@ const char* getCmdImplDesc(const char* cmd)
 	return NULL;
 }
 
-int processCmd(const char* cmd, const char* params[])
+int processCmd(int clientSocket, const char* cmd, const char* params[])
 {
 	ProcessCommandLineBase* cmdImplClass = getCmdImplClass(cmd);
 	if(cmdImplClass == NULL)
 	{
 		Help help;
-		help.processCommandLine(params);
+		help.processCommandLine(clientSocket, params);
 		return -1;
 	}
 
-	return cmdImplClass->processCommandLine(params);
+	return cmdImplClass->processCommandLine(clientSocket, params);
 }
